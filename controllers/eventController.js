@@ -1,8 +1,6 @@
 const Event = require('../models/Event.js');
 const jwt = require('jsonwebtoken');
-const handleInvalidToken = (res) => {
-  return res.status(401).json({ message: 'Invalid token' });
-};
+
 exports.renderButton = (req, res) => {
   res.render('users/event.ejs', { user: req.user });
 };
@@ -28,28 +26,20 @@ exports.getEventById = async (req, res, next) => {
 };
 
 exports.createEvent = async (req, res, next) => {
-  console.log("hello");
-  const token = req.cookies.token;
-  console.log(token);
-  if (!token) {
-    return handleInvalidToken(res);
-  }
-  
-  
-  try {
-    
+  try{
+    const token = req.cookies.token;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userName= decoded.name
     req.user = decoded;
-    console.log(userName);
     const event = new Event({name:userName});
     await event.save();
     res.status(201).json({ message: 'Event created successfully', event });
-  } catch (error) {
+  }
+    
+   catch (error) {
     res.status(400).json({ message: error.message });
   }
-};
-
+}
 exports.updateEvent = async (req, res, next) => {
   try {
     const event = await Event.findByIdAndUpdate(req.params.id, { clicked: true }, { new: true });

@@ -2,10 +2,11 @@ const express = require('express');
 const router = express.Router();
 const eventController = require('../controllers/eventController');
 const Event = require('../models/Event.js');
+const { verifyToken} = require('../middlewares.js');
 
 router.route("/")
   .get(eventController.renderButton)
-  .post(eventController.createEvent);
+  .post(verifyToken,eventController.createEvent);
 
 // router.route('/:id')
 //   .get(eventController.getEventById)

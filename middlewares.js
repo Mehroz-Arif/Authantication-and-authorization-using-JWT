@@ -1,4 +1,8 @@
 const jwt = require('jsonwebtoken');
+function handleInvalidToken(res) {
+  // If the token is not valid or missing, redirect to the login page
+  res.redirect("/login");
+}
 
 module.exports.verifyToken = (req, res, next) => {
   const token = req.cookies.token;
@@ -21,7 +25,3 @@ module.exports.verifyToken = (req, res, next) => {
   }
 };
 
-function handleInvalidToken(res) {
-  // If the token is not valid or missing, redirect to the login page
-  res.redirect("/login");
-}
