@@ -10,8 +10,30 @@ const handleInvalidToken = (res) => {
 exports.getAllEvents = async (req, res, next) => {
   try {
     const userName = req.user;
-    const events = await Event.find({ user: userName });
-    res.status(200).json({ message: 'All events fetched successfully', events });
+    console.log(userName);
+    const page = parseInt(req.query.page) || 1; // Get page number from query parameter or default to 1
+    const limit = parseInt(req.query.limit) || 10; // Get limit from query parameter or default to 10
+    const skip = (page - 1) * limit; // Calculate skip value
+
+    const events = await Event.find({ user: userName })
+                               .skip(skip)
+                               .limit(limit)
+                               .exec();
+
+    const totalEvents = await Event.countDocuments({ user: userName }); // Count total events
+
+    const totalPages = Math.ceil(totalEvents / limit); // Calculate total pages
+
+    // Prepare pagination metadata
+    const pagination = {
+      currentPage: page,
+      totalPages: totalPages,
+      totalEvents: totalEvents,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    };
+
+    res.status(200).json({ message: 'All events fetched successfully', events, pagination });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
