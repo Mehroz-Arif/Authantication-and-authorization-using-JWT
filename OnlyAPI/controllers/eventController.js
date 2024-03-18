@@ -9,18 +9,22 @@ const handleInvalidToken = (res) => {
 
 exports.getAllEvents = async (req, res, next) => {
   try {
-    const userName = req.user;
-    console.log(userName);
-    const page = parseInt(req.query.page) || 1; // Get page number from query parameter or default to 1
-    const limit = parseInt(req.query.limit) || 10; // Get limit from query parameter or default to 10
-    const skip = (page - 1) * limit; // Calculate skip value
+    // Get page number from query parameter or default to 1
+    const page = parseInt(req.query.page) || 1;
 
-    const events = await Event.find({ user: userName })
-                               .skip(skip)
-                               .limit(limit)
-                               .exec();
+    // Get limit from query parameter or default to 10
+    const limit = parseInt(req.query.limit) || 10;
 
-    const totalEvents = await Event.countDocuments({ user: userName }); // Count total events
+    // Calculate skip value
+    const skip = (page - 1) * limit;
+
+    // Fetch events without filtering by user
+    const events = await Event.find()
+      .skip(skip)
+      .limit(limit)
+      .exec();
+
+    const totalEvents = await Event.countDocuments(); // Count total events
 
     const totalPages = Math.ceil(totalEvents / limit); // Calculate total pages
 
@@ -38,6 +42,9 @@ exports.getAllEvents = async (req, res, next) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+
 
 exports.getEventById = async (req, res, next) => {
   try {
@@ -70,7 +77,7 @@ exports.deleteEvent = async (req, res, next) => {
     res.status(500).json({ message: error.message });
   }
 };
-exports.updateEvent= async (req,res,next)=>{
+exports.updateEvent = async (req, res, next) => {
   try {
     const updatedEvent = await Event.findByIdAndUpdate(
       req.params.id,
